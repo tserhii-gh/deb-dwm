@@ -1,5 +1,5 @@
 /* See LICENSE file for copyright and license details. */
-
+#include <X11/XF86keysym.h>
 /* appearance */
 static const char *fonts[] = {
 	"monospace:size=10"
@@ -43,6 +43,7 @@ static const Layout layouts[] = {
 
 /* key definitions */
 #define MODKEY Mod1Mask
+#define MODKEY2 Mod4Mask
 #define TAGKEYS(KEY,TAG) \
 	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
@@ -54,13 +55,34 @@ static const Layout layouts[] = {
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
-static const char *termcmd[]  = { "st", NULL };
+static const char *rofiapps[]	 =   {"j4-dmenu-desktop", "--dmenu", "rofi -lines 10 -dmenu -p \">>> \" -i", NULL};
+static const char *dmenucmd[]	 =   {"rofi", "-show", "run", NULL};
+static const char *urxvt[]       =   { "urxvt", NULL };
+static const char *vol_up[] = {"pulseaudio-ctl", "up", NULL};
+static const char *vol_down[] = {"pulseaudio-ctl", "down", NULL};
+static const char *vol_mute[] = {"pulseaudio-ctl", "mute", NULL};
+static const char *cmus_play[] = {"cmus-remote", "-u", NULL};
+static const char *cmus_stop[] = {"cmus-remote", "-s", NULL};
+static const char *cmus_next[] = {"cmus-remote", "-n", NULL};
+static const char *cmus_prev[] = {"cmus-remote", "-r", NULL};
+static const char *cmus_vol_up[] = {"cmus-remote", "-v", "+5%", NULL};
+static const char *cmus_vol_down[] = {"cmus-remote", "-v", "-5%", NULL};
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */
-	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
-	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
+	{ 0,              XF86XK_AudioRaiseVolume, spawn, {.v = vol_up } },
+    { 0,              XF86XK_AudioLowerVolume, spawn, {.v = vol_down } },
+    { 0,                     XF86XK_AudioMute, spawn, {.v = vol_mute } },
+    { 0,		             XF86XK_AudioPlay, spawn, {.v = cmus_play}},
+    { 0,                     XF86XK_AudioStop, spawn, {.v = cmus_stop}},
+    { 0,                     XF86XK_AudioNext, spawn,    {.v = cmus_next}},
+    { 0,                     XF86XK_AudioPrev, spawn,    {.v = cmus_prev}},
+    { 0,                     XF86XK_AudioPrev, spawn,    {.v = cmus_prev}},
+    { ControlMask,                  XK_period, spawn,    {.v = cmus_vol_up}},
+    { ControlMask,                  XK_comma,  spawn,    {.v = cmus_vol_down}},
+    { 0,                            0xff67,	   spawn,         {.v = rofiapps}},
+    { MODKEY2,                      XK_x,      spawn,         {.v = urxvt }},
+    { MODKEY,                 	    XK_p,      spawn,        {.v = dmenucmd }},
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
@@ -70,7 +92,7 @@ static Key keys[] = {
 	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
 	{ MODKEY,                       XK_Return, zoom,           {0} },
 	{ MODKEY,                       XK_Tab,    view,           {0} },
-	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
+	{ MODKEY2,		                XK_c,      killclient,     {0} },
 	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
 	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
 	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
@@ -101,7 +123,6 @@ static Button buttons[] = {
 	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
 	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
 	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
-	{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },
 	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
 	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
 	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
