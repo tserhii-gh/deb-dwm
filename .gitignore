@@ -1,0 +1,5 @@
+dwm
+patches/
+*.o
+*.orig
+*.rej
